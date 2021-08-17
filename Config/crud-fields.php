@@ -40,12 +40,30 @@ return [
             ]
         ],
         'apiKey' => [
-          'value' => null,
+            'value' => null,
             'name' => 'apiKey',
             'isFakeField' => true,
             'type' => 'input',
             'props' => [
                 'label' => 'Api Key'
+            ]
+        ],
+        'password' => [
+            'value' => null,
+            'name' => 'password',
+            'isFakeField' => true,
+            'type' => 'input',
+            'props' => [
+                'label' => 'Password'
+            ]
+        ],
+        'cityOrigin' => [
+            'value' => null,
+            'name' => 'cityOrigin',
+            'isFakeField' => true,
+            'type' => 'input',
+            'props' => [
+                'label' => 'Ciudad de Origen - Codigo DANE Ibague Example: 73001000'
             ]
         ],
         'mode' => [

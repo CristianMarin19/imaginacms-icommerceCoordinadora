@@ -15,16 +15,17 @@ use Modules\Icommerce\Repositories\ShippingMethodRepository;
 // Services
 use Modules\Icommercecoordinadora\Services\CoordinadoraService;
 
+use Modules\Icommercecoordinadora\Traits\Coordinadora;
+
 class CoordinadoraApiController extends BaseApiController
 {
 
-    const SANDBOX_URL = "http://sandbox.coordinadora.com/ags/1.5/server.php?wsdl";
-    const PRODUCTION_URL = "http://sandbox.coordinadora.com/ags/1.5/server.php?wsdl";
+
+    use Coordinadora;
 
     private $shippingMethod;
     private $coordinadoraService;
 
-    private $clientSoap;
     private $methodConfiguration;
     private $cities;
    
@@ -38,85 +39,37 @@ class CoordinadoraApiController extends BaseApiController
 
         $this->methodConfiguration = $this->coordinadoraService->getShippingMethodConfiguration();
 
-        $this->clientSoap = $this->initClientSoap();
 
-        $this->cities = $this->getCities();
-
-    }
-
-    /**
-    * Init Client
-    * @param 
-    * @return client
-    */
-    public function initClientSoap(){
-
-        // Params
-        $opts = array(
-            'ssl' => array(
-                'verify_peer'=>false, 
-                'verify_peer_name'=>false,
-                'allow_self_signed' => true
-            )
-        );
-
-        $params = array (
-            'encoding' => 'UTF-8',
-            'soap_version' => SOAP_1_2, 
-            'trace' => true, 
-            'exceptions' => true, 
-            "connection_timeout" => 180, 
-            'stream_context' => stream_context_create($opts) 
-        );
-
-        // URL
-        $url = self::SANDBOX_URL;
-        if($this->methodConfiguration->options->mode=="production")
-             $url = self::PRODUCTION_URL;
-
-        // Create Client
-        try{
-            
-            $client = new \SoapClient($url,$params);
-            return $client;
-
-        }catch (\Exception $e){
-
-            \Log::error('Module IcommerceCoordinadora: Init Client - Message: '.$e->getMessage());
-            \Log::error('Module IcommerceCoordinadora: Init Client - Code: '.$e->getCode());
-
-            //throw new  \Exception($e->getMessage());
-        }
+        //$this->cities = $this->getCities();
 
     }
-    
+
     /**
     * @param Request Array  products  (items,total)
-    * @param Request String shipping_country 
-    * @param Request String shipping_country_code
+    * @param Array address
     * @return response Cotizador
     */
-    public function cotizacion(Request $request){
+    public function cotizacion(Request $request,$address){
 
         try {
 
+           
             //dd($this->clientSoap->__getTypes());
-            //dd($request);
-            
-            $inforCotizar = $this->coordinadoraService->getInforCotizar($request->products,$this->methodConfiguration);
-
-            dd($inforCotizar);
-
-            //dd($this->clientSoap->Cotizador_cotizar($inforCotizar));
-  
             //dd($this->cities);
             //dd($this->searchCity("aksdjsk"));
             
+            $inforCotizar = $this->coordinadoraService->getInforCotizar($request->products,$this->methodConfiguration,$address);
 
+            
+            $response = $this->initClientSoap()->Cotizador_cotizar(['p'=>$inforCotizar]);
+
+           
            //SoapFault $fault
           } catch (\Exception $e) {
 
-            dd($e);
+            \Log::error('Module Coordinadora: Cotizacion - Message: '.$e->getMessage());
+
+            //dd("Coordinadora - cotizacion",$e);
             //Message Error
             $status = 500;
             $response = [
@@ -129,13 +82,13 @@ class CoordinadoraApiController extends BaseApiController
     }
 
     /**
-    * @param 
+    * @param TESTING
     * @return response Array of Json City
     */
     public function getCities(){
 
         $items = null;
-        $result = $this->clientSoap->Cotizador_ciudades();
+        $result = $this->initClientSoap()->Cotizador_ciudades();
 
         if(!empty($result->Cotizador_ciudadesResult))
             $items = $result->Cotizador_ciudadesResult->item;
@@ -144,23 +97,7 @@ class CoordinadoraApiController extends BaseApiController
         
     }
 
-    /**
-    * @param TESTING
-    * @return
-    */
-    public function searchCity($data){
-
-        $city = null;
-        foreach ($this->cities as $key => $city) {
-            // OJOOOOO ESTO CAMBIAR
-            if($city->nombre_departamento=="Antioquia"){
-                return $city;
-            }    
-        }
-
-        return $city; 
-
-    }
+    
     
 
     

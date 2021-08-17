@@ -15,22 +15,27 @@ use Modules\Icommercecoordinadora\Http\Controllers\Api\CoordinadoraApiController
 use Modules\Icommercecoordinadora\Repositories\IcommerceCoordinadoraRepository;
 use Modules\Icommerce\Repositories\ShippingMethodRepository;
 
+use Modules\Iprofile\Repositories\AddressRepository;
+
 class IcommerceCoordinadoraApiController extends BaseApiController
 {
 
     private $coordinadoraApi;
+    private $addressRepository;
    
     public function __construct(
-       CoordinadoraApiController $coordinadoraApi
+       CoordinadoraApiController $coordinadoraApi,
+       AddressRepository $addressRepository
     ){
         $this->coordinadoraApi = $coordinadoraApi;
+        $this->addressRepository = $addressRepository;
     }
     
      /**
      * Init data
      * @param Requests array products - items (object)
      * @param Requests array products - total
-     * @param Requests Opcionales (countryCode, country, postalCode)
+     * @param Requests shippingAddress
      * @return response
      * String status = success
      * JSON items - (Optional - Default null) - (Each item: name and price)
@@ -40,22 +45,86 @@ class IcommerceCoordinadoraApiController extends BaseApiController
     public function init(Request $request){
 
         try {
+            
+            \Log::info('Module IcommerceCoordinadora: ========= INIT =========');
 
-            //$cotizacion = $this->coordinadoraApi->cotizacion($request);
-            
+            $response["status"] = "error";
 
-            //$response = $this->icommercecoordinadora->calculate($request->all(),$shippingMethod->options);
-            
-            $response["status"] = "success";
-            // Items
-            $response["items"] = null;
-            // Price
-            $response["price"] = 10000;
-            $response["priceshow"] = true;
-            
+            $addressId = $request->shippingAddressId;
+
+            if(is_null($addressId)){
+
+                \Log::info('Module IcommerceCoordinadora: SHIPPING ADDRESS - NOT FOUND');
+                $response["msj"] = "Debe seleccionar una dirección de entrega";
+
+            }else{
+
+
+                $address = $this->addressRepository->find($addressId);
+                \Log::info('Module IcommerceCoordinadora: SHIPPING ADDRESS ID: '.$addressId);
+
+                $addressResume = $address->first_name.' - '.$address->address_1; 
+                \Log::info('Module IcommerceCoordinadora: SHIPPING ADDRESS: '.$addressResume);
+
+
+                $responseCotizacion = $this->coordinadoraApi->cotizacion($request,$address);
+
+                
+                if($responseCotizacion->status()==200){
+
+                    $data = $responseCotizacion->getData()->Cotizador_cotizarResult;
+                     
+                    //\Log::info('Module IcommerceCoordinadora: ** Response **: '.json_encode($data));
+                    \Log::info('Module IcommerceCoordinadora: Flete Total: '.$data->flete_total);
+
+                    $response["status"] = "success";
+
+                    $response["items"] = null;
+
+                    $response["price"] = $data->flete_total;
+                    $response["priceshow"] = true;
+                    
+
+                }else{
+                    $response["msj"] = $responseCotizacion->getContent();
+                }
+          
+            }
 
           } catch (\Exception $e) {
+
+            //dd("Icommerce Coordinadora Init",$e);
             //Message Error
+            $status = 500;
+            $response = [
+              'errors' => $e->getMessage()
+            ];
+        }
+
+        \Log::info('Module IcommerceCoordinadora: RESPONSE: '.json_encode($response));
+
+        \Log::info('Module IcommerceCoordinadora: ========= END =========');
+
+        return response()->json($response, $status ?? 200);
+
+    }
+
+
+    /*
+    *
+    */
+    public function getCities(){
+        
+        try {
+
+            $cities = $this->coordinadoraApi->getCities();
+
+            $response = ["data" => $cities];
+
+        } catch (\Exception $e) {
+
+            dd("Icommerce Coordinadora - Get Cities",$e);
+            //Message ErrorInit
             $status = 500;
             $response = [
               'errors' => $e->getMessage()

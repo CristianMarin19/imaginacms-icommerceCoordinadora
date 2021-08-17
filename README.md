@@ -16,5 +16,7 @@ php artisan module:seed Icommercecoordinadora
 ```
 
 ## Configurations
-    - Api key
+    - Api key (Provee Coordinadora)
+    - Clave (Provee Coordinadora)
+    - Ciudad de Origen (En codigo DANE)
     - Mode (sandbox or production)

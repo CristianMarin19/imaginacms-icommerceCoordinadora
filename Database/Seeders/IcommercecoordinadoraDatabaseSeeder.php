@@ -25,7 +25,8 @@ class IcommercecoordinadoraDatabaseSeeder extends Seeder
 
             $options['init'] = "Modules\Icommercecoordinadora\Http\Controllers\Api\IcommerceCoordinadoraApiController";
             $options['apiKey'] = null;
-            $options['clave'] = null;
+            $options['password'] = null;
+            $options['cityOrigin'] = null;
             $options['mode'] = "sandbox";
            
       
