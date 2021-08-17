@@ -57,6 +57,7 @@ return [
                 'label' => 'Password'
             ]
         ],
+        /*
         'cityOrigin' => [
             'value' => null,
             'name' => 'cityOrigin',
@@ -64,6 +65,27 @@ return [
             'type' => 'input',
             'props' => [
                 'label' => 'Ciudad de Origen - Codigo DANE Ibague Example: 73001000'
+            ]
+        ],
+        */
+        'cityOrigin' => [
+            'value' => null,
+            'name' => 'cityOrigin',
+            'isFakeField' => true,
+            'type' => 'select',
+            'props' => [
+              'clearable' => true,
+              'multiple' => false,
+              'label' => 'Ciudad de Origen',
+            ],
+            'loadOptions' => [
+              'apiRoute' => 'apiRoutes.qlocations.cities',
+              'select' => ['label' => 'name', 'id' => 'code'],
+              'requestParams' => [
+                "filter" => [
+                  "indexAll" => true
+                ]
+              ]
             ]
         ],
         'mode' => [
