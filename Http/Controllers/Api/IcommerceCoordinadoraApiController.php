@@ -86,7 +86,9 @@ class IcommerceCoordinadoraApiController extends BaseApiController
                     
 
                 }else{
-                    $response["msj"] = $responseCotizacion->getContent();
+
+                    $errorResult = json_decode($responseCotizacion->getContent());
+                    $response["msj"] = $errorResult->errors;
                 }
           
             }
