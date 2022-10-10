@@ -42,7 +42,7 @@ class IcommercecoordinadoraServiceProvider extends ServiceProvider
         $this->publishConfig('icommercecoordinadora', 'config');
         $this->publishConfig('icommercecoordinadora', 'crud-fields');
 
-        $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
+        //$this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
     }
 
     /**
