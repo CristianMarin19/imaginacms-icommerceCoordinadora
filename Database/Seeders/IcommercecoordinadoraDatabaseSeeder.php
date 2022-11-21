@@ -16,7 +16,7 @@ class IcommercecoordinadoraDatabaseSeeder extends Seeder
     public function run()
     {
         Model::unguard();
-
+        $this->call(IcommercecoordinadoraModuleTableSeeder::class);
 
         $name = config('asgard.icommercecoordinadora.config.shippingName');
         $result = ShippingMethod::where('name',$name)->first();
