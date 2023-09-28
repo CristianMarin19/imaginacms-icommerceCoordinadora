@@ -2,8 +2,7 @@
 
 use Illuminate\Routing\Router;
 
-$router->group(['prefix' => 'icommercecoordinadora/v1'], function (Router $router) {
-    
+Route::prefix('icommercecoordinadora/v1')->group(function (Router $router) {
     $router->get('/', [
         'as' => 'icommercecoordinadora.api.coordinadora.init',
         'uses' => 'IcommerceCoordinadoraApiController@init',
@@ -13,7 +12,4 @@ $router->group(['prefix' => 'icommercecoordinadora/v1'], function (Router $route
         'as' => 'icommercecoordinadora.api.coordinadora.getcities',
         'uses' => 'IcommerceCoordinadoraApiController@getCities',
     ]);
-
-   
-
 });
