@@ -101,7 +101,6 @@ class IcommerceCoordinadoraApiController extends BaseApiController
 
             $response = ['data' => $cities];
         } catch (\Exception $e) {
-            dd('Icommerce Coordinadora - Get Cities', $e);
             //Message ErrorInit
             $status = 500;
             $response = [
